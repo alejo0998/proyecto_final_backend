@@ -111,6 +111,8 @@ env.bak/
 venv.bak/
 lsa_backend/__pycache__/
 ../venv/
+./venv/
+../venv/
 
 # Spyder project settings
 .spyderproject
