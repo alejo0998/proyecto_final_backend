@@ -1,11 +1,12 @@
-from pyexpat import model
 from django.db import models
-
+from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 # Create your models here.
 
-class Usuario(models):
-    email = models.CharField(max_length=100, null=False, blank=False)
+class Usuario(AbstractUser):
+    email = models.EmailField(max_length=150, unique=True)
+    nombre = models.CharField(max_length=64)
+    apellido = models.CharField(max_length=64)
     ultimo_acceso = models.DateTimeField(auto_now=True)
-    nombre = models.CharField(max_length=100)
-    apellido = models.CharField(max_length=100)
-    foto = models.FilePathField()
+    foto_perfil = models.FileField(null=True, blank=True)
+
