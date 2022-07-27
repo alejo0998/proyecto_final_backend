@@ -103,7 +103,7 @@ celerybeat.pid
 *.pyc
 .pyc
 pyc
-venv/*.pyc
+venv/**/*.pyc
 # Environments
 .env
 .venv
