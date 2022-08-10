@@ -126,7 +126,10 @@ pyc
 
 # mkdocs documentation
 /site
-
+venv
+/venv
+/venv/
+.pyc
 # mypy
 .mypy_cache/
 .dmypy.json
