@@ -149,4 +149,4 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = "login.Usuario" 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+#STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
