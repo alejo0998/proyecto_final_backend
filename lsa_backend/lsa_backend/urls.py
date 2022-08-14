@@ -22,7 +22,8 @@ from rest_framework.authtoken import views
 from login.views import *
 from rest_framework.permissions import IsAuthenticated
 from aprendizaje.viewset import SenaViewset, UsuarioSenaViewset
-
+from django.config import settings
+from django.config.urls.static import static
 # Serializers define the API representation.
 
 class UsuarioSerializer(serializers.HyperlinkedModelSerializer):
@@ -56,4 +57,4 @@ urlpatterns = [
     path('senas/get_senas_categoria', SenaViewset.get_senas_categoria),
     path('usuario/get_senas_usuario', UsuarioSenaViewset.get_senas_usuario),
     path('usuario/post_sena_usuario', UsuarioSenaViewset.post_sena_usuario),
-]
+]+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
