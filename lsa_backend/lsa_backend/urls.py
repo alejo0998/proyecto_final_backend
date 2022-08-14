@@ -18,25 +18,32 @@ from django.urls import path
 from rest_framework import routers, serializers, viewsets
 from login.models import Usuario
 from django.contrib import admin
+from rest_framework.authtoken import views
+from login.views import *
+from rest_framework.permissions import IsAuthenticated
+from aprendizaje.viewset import SenaViewset, UsuarioSenaViewset
 
 # Serializers define the API representation.
+
 class UsuarioSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Usuario
-        fields = ['url', 'Usuarioname', 'email', 'is_staff']
+        fields = ['url', 'email', 'nombre', 'apellido',]
 
 # ViewSets define the view behavior.
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
+    permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        print("aca estoy")
-        return None
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
-router.register(r'Usuarios', UsuarioViewSet)
+router.register(r'usuario', UsuarioViewSet)
+router.register(r'senas', SenaViewset)
+router.register(r'usuario_senas', UsuarioSenaViewset)
+
+
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
@@ -44,4 +51,9 @@ urlpatterns = [
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),
+    path('api-token-auth/', views.obtain_auth_token),
+    path('login/', login),
+    path('senas/get_senas_categoria', SenaViewset.get_senas_categoria),
+    path('usuario/get_senas_usuario', UsuarioSenaViewset.get_senas_usuario),
+    path('usuario/post_sena_usuario', UsuarioSenaViewset.post_sena_usuario),
 ]
