@@ -7,6 +7,23 @@ from .models import Sena, UsuarioSena
 from rest_framework.response import Response
 from rest_framework.request import Request
 
+def obtener_categoria(categoria):
+    CATEGORIAS= [
+        ('1', 'Abecedario'),
+        ('2', 'Colores'),
+        ('3', 'Comidas'),
+        ('4', 'Geografia'),
+        ('5', 'Modales'),
+        ('6', 'Numeros'),
+        ('7', 'Personas'),
+        ('8', 'Preguntas'),
+        ('9', 'Verbos'),
+    ]
+    categoria = categoria.upper()
+    for cat in CATEGORIAS:
+        if categoria == cat[1].upper():
+            return cat[0]
+
 class SenaViewset(viewsets.ModelViewSet):
     queryset = Sena.objects.all()
     serializer_class = SenaSerializer
@@ -15,8 +32,10 @@ class SenaViewset(viewsets.ModelViewSet):
     @api_view(['GET'])
     def get_senas_categoria(request): #Me devuelve todas las senas segun una categoria
         if request.GET.get('categoria'):
-            queryset = Sena.objects.filter(categoria__nombre__icontains = request.GET.get('categoria'))
-            serializer = SenaSerializer(queryset, many=True, context={'request': request})
+            categoria = obtener_categoria(request.GET.get('categoria'))
+            queryset = Sena.objects.filter(categoria=categoria)
+            serializer = SenaSerializer(queryset, many=True, context={'request': request,
+                                                                      'user': request._auth.user})
             return Response(serializer.data)
         return Response('No se envio la categoria')
 
@@ -25,12 +44,20 @@ class UsuarioSenaViewset(viewsets.ModelViewSet):
     serializer_class = UsuarioSenaSerializer
     permission_classes = [IsAuthenticated]
 
+    @api_view(['GET'])
+    def get_senas_usuario(request): #Me devuelve las senas que vio un usuario
+        if request._auth:
+            queryset = UsuarioSena.objects.filter(usuario=request._auth.user)
+            serializer = UsuarioSenaSerializer(queryset, many=True, context={'request': request})
+            return Response(serializer.data, 200)
+        return Response('No se envio el token', 401)
+
     @api_view(['POST'])
     def post_sena_usuario(request): #Actualiza una sena que vio un usuario
-        nombre = request.POST.get('nombre_seña')
+        id = request.POST.get('id_sena')
         if request._auth and id:
             try:
-                sena_realizada = Sena.objects.get(nombre__icontains=nombre)
+                sena_realizada = Sena.objects.get(id=id)
                 UsuarioSena.objects.create(
                     usuario = request._auth.user,
                     sena_realizada = sena_realizada

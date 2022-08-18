@@ -24,6 +24,7 @@ class Sena(models.Model):
         default=Categoria.ABECEDARIO
         )
 
+
 class UsuarioSena(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     sena_realizada = models.ForeignKey(Sena, on_delete=models.CASCADE)
