@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from xml.dom.minidom import Document
 from django.urls import include, path
 from django.urls import path
 from rest_framework import routers, serializers, viewsets
@@ -22,8 +23,8 @@ from rest_framework.authtoken import views
 from login.views import *
 from rest_framework.permissions import IsAuthenticated
 from aprendizaje.viewset import SenaViewset, UsuarioSenaViewset
-from django.config import settings
-from django.config.urls.static import static
+from django.conf import settings
+from django.conf.urls.static import static
 # Serializers define the API representation.
 
 class UsuarioSerializer(serializers.HyperlinkedModelSerializer):
@@ -58,3 +59,4 @@ urlpatterns = [
     path('usuario/get_senas_usuario', UsuarioSenaViewset.get_senas_usuario),
     path('usuario/post_sena_usuario', UsuarioSenaViewset.post_sena_usuario),
 ]+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+

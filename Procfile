@@ -1,0 +1,1 @@
+web: gunicorn lsa_backend.wsgi --log-file -
