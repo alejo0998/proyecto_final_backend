@@ -7,6 +7,23 @@ from .models import Sena, UsuarioSena
 from rest_framework.response import Response
 from rest_framework.request import Request
 
+def obtener_categoria(categoria):
+    CATEGORIAS= [
+        ('1', 'Abecedario'),
+        ('2', 'Colores'),
+        ('3', 'Comidas'),
+        ('4', 'Geografia'),
+        ('5', 'Modales'),
+        ('6', 'Numeros'),
+        ('7', 'Personas'),
+        ('8', 'Preguntas'),
+        ('9', 'Verbos'),
+    ]
+    categoria = categoria.upper()
+    for cat in CATEGORIAS:
+        if categoria == cat[1].upper():
+            return cat[0]
+
 class SenaViewset(viewsets.ModelViewSet):
     queryset = Sena.objects.all()
     serializer_class = SenaSerializer
@@ -15,8 +32,10 @@ class SenaViewset(viewsets.ModelViewSet):
     @api_view(['GET'])
     def get_senas_categoria(request): #Me devuelve todas las senas segun una categoria
         if request.GET.get('categoria'):
-            queryset = Sena.objects.filter(categoria = request.GET.get('categoria'))
-            serializer = SenaSerializer(queryset, many=True, context={'request': request})
+            categoria = obtener_categoria(request.GET.get('categoria'))
+            queryset = Sena.objects.filter(categoria=categoria)
+            serializer = SenaSerializer(queryset, many=True, context={'request': request,
+                                                                      'user': request._auth.user})
             return Response(serializer.data)
         return Response('No se envio la categoria')
 
