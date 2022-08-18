@@ -55,8 +55,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-token-auth/', views.obtain_auth_token),
     path('login/', login),
-    path('senas/get_senas_categoria', SenaViewset.get_senas_categoria),
-    path('usuario/get_senas_usuario', UsuarioSenaViewset.get_senas_usuario),
-    path('usuario/post_sena_usuario', UsuarioSenaViewset.post_sena_usuario),
+    path('signs/category', SenaViewset.get_senas_categoria),
+    path('user/sign', UsuarioSenaViewset.post_sena_usuario),
 ]+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
