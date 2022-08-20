@@ -1,3 +1,4 @@
+import json
 import re
 from .models import Usuario
 from rest_framework.decorators import api_view
@@ -9,9 +10,9 @@ from django.db import transaction
 @transaction.atomic
 @api_view(['POST'])
 def login(request):
-    post = request.POST
-    email = post.get('email')
-    token = post.get('token')
+    json_data = json.loads(request.body)
+    email = json_data.get('email')
+    token = json_data.get('token')
     if email and token:
         if not(es_correo_valido(email)):
             return Response('Formato invalido de email', 200)
@@ -19,13 +20,15 @@ def login(request):
         usuario, created = Usuario.objects.get_or_create(email=email, username=username)
         try:
             if created:
-                nombre = post.get('nombre')
-                apellido = post.get('apellido')
+                nombre = json_data.get('nombre')
+                apellido = json_data.get('apellido')
+                if nombre is None or apellido is None:
+                    return Response('No envio nombre o apellido', 400)
                 usuario.email = email
                 usuario.nombre = nombre
                 usuario.apellido = apellido
                 usuario.save()
-                token = Token.objects.create(user = usuario, key = token)
+                token = Token.objects.create(user=usuario, key=token)
                 respuesta  = {
                     'usuario': username,
                     'creado': True,
