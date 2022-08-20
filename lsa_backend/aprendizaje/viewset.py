@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from .models import Sena, UsuarioSena
 from rest_framework.response import Response
-from rest_framework.request import Request
+import json
 
 def obtener_categoria(categoria):
     CATEGORIAS= [
@@ -54,7 +54,10 @@ class UsuarioSenaViewset(viewsets.ModelViewSet):
 
     @api_view(['POST'])
     def post_sena_usuario(request): #Actualiza una sena que vio un usuario
-        id = request.POST.get('id_sena')
+        json_data = json.loads(request.body)
+        id = json_data.get('id_sena')
+        if id is None:
+            id = request.POST.get('id_sena')
         if request._auth and id:
             try:
                 sena_realizada = Sena.objects.get(id=id)
