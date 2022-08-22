@@ -31,8 +31,8 @@ class SenaViewset(viewsets.ModelViewSet):
 
     @api_view(['GET'])
     def get_senas_categoria(request): #Me devuelve todas las senas segun una categoria
-        if request.GET.get('categoria'):
-            categoria = obtener_categoria(request.GET.get('categoria'))
+        if request.GET.get('category'):
+            categoria = obtener_categoria(request.GET.get('category'))
             queryset = Sena.objects.filter(categoria=categoria)
             serializer = SenaSerializer(queryset, many=True, context={'request': request,
                                                                       'user': request._auth.user})
@@ -55,9 +55,9 @@ class UsuarioSenaViewset(viewsets.ModelViewSet):
     @api_view(['POST'])
     def post_sena_usuario(request): #Actualiza una sena que vio un usuario
         json_data = json.loads(request.body)
-        id = json_data.get('id_sena')
+        id = json_data.get('idSign')
         if id is None:
-            id = request.POST.get('id_sena')
+            id = request.POST.get('idSign')
         if request._auth and id:
             try:
                 sena_realizada = Sena.objects.get(id=id)

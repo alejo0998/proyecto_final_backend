@@ -20,8 +20,8 @@ def login(request):
         usuario, created = Usuario.objects.get_or_create(email=email, username=username)
         try:
             if created:
-                nombre = json_data.get('nombre')
-                apellido = json_data.get('apellido')
+                nombre = json_data.get('firstName')
+                apellido = json_data.get('lastName')
                 if nombre is None or apellido is None:
                     return Response('No envio nombre o apellido', 400)
                 usuario.email = email
