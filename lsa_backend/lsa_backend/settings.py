@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'login',
     'aprendizaje',
-    'juegos'
+    'juegos',
 ]
 
 MIDDLEWARE = [
