@@ -7,6 +7,20 @@ from .models import Sena, UsuarioSena
 from rest_framework.response import Response
 import json
 
+
+def normalize(s):
+    replacements = (
+        ("á", "a"),
+        ("é", "e"),
+        ("í", "i"),
+        ("ó", "o"),
+        ("ú", "u"),
+    )
+    for a, b in replacements:
+        s = s.replace(a, b).replace(a.upper(), b.upper())
+    return s
+
+
 def obtener_categoria(categoria):
     CATEGORIAS= [
         ('1', 'Abecedario'),
@@ -21,7 +35,7 @@ def obtener_categoria(categoria):
     ]
     categoria = categoria.upper()
     for cat in CATEGORIAS:
-        if categoria == cat[1].upper():
+        if normalize(categoria) == normalize(cat[1].upper()):
             return cat[0]
 
 class SenaViewset(viewsets.ModelViewSet):
