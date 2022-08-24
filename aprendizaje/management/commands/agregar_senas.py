@@ -7,7 +7,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         with open('aprendizaje_url.csv', 'r', newline='') as csvfile:
             reader = csv.DictReader(csvfile)
-            for row in sorted(reader, reverse=False, key='nombre'):
+            for row in reader:
                 categoria = row['Categoria']
                 nombre = row['Nombre'].replace('_', ' ')
                 url = row['URL']
