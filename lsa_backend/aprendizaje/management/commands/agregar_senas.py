@@ -4,7 +4,7 @@ from aprendizaje.models import Sena
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        with open('/home/aprendizaje_url.csv', 'r', newline='') as csvfile:
+        with open('aprendizaje_url.csv', 'r', newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 categoria = row['Categoria']
