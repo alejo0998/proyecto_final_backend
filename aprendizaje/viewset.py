@@ -47,7 +47,7 @@ class SenaViewset(viewsets.ModelViewSet):
     def get_senas_categoria(request): #Me devuelve todas las senas segun una categoria
         if request.GET.get('category'):
             categoria = obtener_categoria(request.GET.get('category'))
-            queryset = Sena.objects.filter(categoria=categoria)
+            queryset = Sena.objects.filter(categoria=categoria).order_by('nombre')
             serializer = SenaSerializer(queryset, many=True, context={'request': request,
                                                                       'user': request._auth.user})
             return Response(serializer.data)
