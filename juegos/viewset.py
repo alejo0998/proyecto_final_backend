@@ -17,7 +17,7 @@ class JuegoViewset(viewsets.ModelViewSet):
     @api_view(['GET'])
     def get_juegos(request):
         categoria = request.GET.get('categoryName')
-        posibles_juegos = ['escribi']
+        posibles_juegos = ['escribi', 'adivina']
         response = []
         if request._auth and categoria:
             int_categoria = obtener_categoria(categoria)
