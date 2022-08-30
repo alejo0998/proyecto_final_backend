@@ -23,6 +23,9 @@ class Sena(models.Model):
         choices=Categoria.choices,
         default=Categoria.ABECEDARIO
         )
+    
+    def __str__(self):
+        return self.nombre
 
 
 class UsuarioSena(models.Model):
