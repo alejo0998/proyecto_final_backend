@@ -33,5 +33,10 @@ class UsuarioSena(models.Model):
     sena_realizada = models.ForeignKey(Sena, on_delete=models.CASCADE)
     fecha = models.DateTimeField(auto_now=True)
 
+
+class VideoSena(models.Model):
+    sena = models.ForeignKey(Sena, on_delete=models.CASCADE)
+    video = models.FileField(upload_to="media", null=False)
+
 admin.site.register(Sena)
 admin.site.register(UsuarioSena)
