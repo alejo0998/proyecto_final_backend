@@ -6,6 +6,7 @@ from aprendizaje.models import Sena, VideoSena
 from aprendizaje.viewset import obtener_categoria
 from rest_framework.response import Response
 import random
+from juegos.helper_viewset import predict
 from juegos.serializers import JuegoSerializer, SignarSerializer
 
 class SignarViewset(viewsets.ModelViewSet):
@@ -35,6 +36,9 @@ class SignarViewset(viewsets.ModelViewSet):
             except Exception as e:
                 return Response('Error {}'.format(e), 401)
         return Response('Falta enviar video o seña', 401)
+    
+    def analizar_video(self, videoSena):
+        predict(videoSena)
 
 
 class JuegoViewset(viewsets.ModelViewSet):
