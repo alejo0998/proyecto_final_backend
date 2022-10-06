@@ -1,6 +1,5 @@
 from aprendizaje.models import Sena
 import cv2
-import numpy as np
 import mediapipe as mp
 import tensorflow as tf
 
@@ -43,15 +42,15 @@ def mediapipe_detection(image, model):
 #    mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS) # Draw right hand connections
 
 def extract_keypoints(results):
-    pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else zero(33*4,"pose")
-    face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark]).flatten() if results.face_landmarks else zero(468*3,"cara")
-    lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark]).flatten() if results.left_hand_landmarks else zero(21*3,"mano izq")
-    rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten() if results.right_hand_landmarks else zero(21*3,"mano der")
-    return np.concatenate([pose, face, lh, rh])
+    pose = ([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else zero(33*4,"pose")
+    face = ([[res.x, res.y, res.z] for res in results.face_landmarks.landmark]).flatten() if results.face_landmarks else zero(468*3,"cara")
+    lh = ([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark]).flatten() if results.left_hand_landmarks else zero(21*3,"mano izq")
+    rh = ([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten() if results.right_hand_landmarks else zero(21*3,"mano der")
+    return ([pose, face, lh, rh])
 
 def zero(i,t):
   print("no encontro " + str(t))
-  return np.zeros(i)
+  return (i)
 
 
 def frames_extraction(video_path, sena):
@@ -136,11 +135,11 @@ def predict(videoSena):
     test_keypoints = list(video.keypoints)
     list_test = list()
     list_test.append(test_keypoints)
-    predictions = model.predict((np.array(list_test)))
+    predictions = model.predict((list(list_test)))
     posibles_senas = Sena.objects.filter(categoria=categoria)[0:4]
     if len(posibles_senas) != len(predictions[0]):
       videoSena.video.delete()
       return None
     videoSena.video.delete()
-    return posibles_senas[int(np.argmax(predictions))]
+    return posibles_senas[int(max(predictions))]
 
