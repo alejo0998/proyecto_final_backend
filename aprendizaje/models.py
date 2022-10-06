@@ -7,6 +7,7 @@ from django.contrib import admin
 class Sena(models.Model):
     nombre = models.CharField(max_length=50)
     url = models.CharField(max_length=254)
+    permite_signa = models.BooleanField(default=False)
     class Categoria(models.TextChoices):
         ABECEDARIO = '1', _('Abecedario')
         COLORES = '2', _('Colores')
@@ -36,7 +37,7 @@ class UsuarioSena(models.Model):
 
 class VideoSena(models.Model):
     sena = models.ForeignKey(Sena, on_delete=models.CASCADE)
-    video = models.FileField(upload_to="media", null=False)
+    video = models.FileField(upload_to="media", null=True)
 
 admin.site.register(Sena)
 admin.site.register(UsuarioSena)
