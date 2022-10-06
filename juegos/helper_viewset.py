@@ -1,18 +1,8 @@
 from aprendizaje.models import Sena
 import cv2
 import numpy as np
-import os
-import time
 import mediapipe as mp
 import tensorflow as tf
-import pandas as pd
-import seaborn as sn
-import matplotlib.pyplot as plt
-from sklearn.metrics import classification_report
-from matplotlib import pyplot as plt
-from google.colab.patches import cv2_imshow
-from tensorflow.keras.utils import to_categorical
-from sklearn.model_selection import train_test_split
 
 mp_holistic = mp.solutions.holistic # Holistic model
 mp_drawing = mp.solutions.drawing_utils # Drawing utilities
@@ -81,7 +71,7 @@ def frames_extraction(video_path, sena):
     video.label = sena.categoria
     
     # Read the Video File using the VideoCapture object.
-    video_reader = cv2.VideoCapture(video_path)
+    video_reader = cv2.VideoCapture(video_path.path)
 
     # Get the total number of frames in the video.
     video_frames_count = int(video_reader.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -116,7 +106,7 @@ def frames_extraction(video_path, sena):
           # Draw landmarks
           #draw_landmarks(image, result)
           results = extract_keypoints(result)
-
+          video_keypoints.append(results)
           """print("mano izq")
           print(result)
           if(result.left_hand_landmarks):
@@ -126,8 +116,7 @@ def frames_extraction(video_path, sena):
         
         # Append the normalized frame into the frames list
         #frames_list.append(image)
-        video_keypoints.append(results)
-
+        
     # Release the VideoCapture object. 
     video_reader.release()
     #video.frames = frames_list
@@ -139,15 +128,19 @@ def frames_extraction(video_path, sena):
     #return frames_list, video_keypoints
 
 def predict(videoSena):
-    import pdb; pdb.set_trace()
     categoria = videoSena.sena.categoria
     model_name = categoria
-    file_name = model_name + ".h5" 
+    file_name = './modelos/' + model_name + ".h5" 
     model = tf.keras.models.load_model(file_name)
     video = frames_extraction(videoSena.video, videoSena.sena)
     test_keypoints = list(video.keypoints)
-    CLASSES_LIST = Sena.objects.filter(categoria=categoria).values_list('id', 'nombre')
-    predictions = model.predict(np.array(test_keypoints))
-    predicted_label = CLASSES_LIST[np.argmax(predictions)]
-    return predicted_label
+    list_test = list()
+    list_test.append(test_keypoints)
+    predictions = model.predict((np.array(list_test)))
+    posibles_senas = Sena.objects.filter(categoria=categoria)[0:4]
+    if len(posibles_senas) != len(predictions[0]):
+      videoSena.video.delete()
+      return None
+    videoSena.video.delete()
+    return posibles_senas[int(np.argmax(predictions))]
 
