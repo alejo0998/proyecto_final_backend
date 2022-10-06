@@ -6,6 +6,7 @@ from aprendizaje.models import Sena, VideoSena
 from aprendizaje.viewset import obtener_categoria
 from rest_framework.response import Response
 import random
+from juegos.helper_viewset import predict
 from juegos.serializers import JuegoSerializer, SignarSerializer
 
 class SignarViewset(viewsets.ModelViewSet):
@@ -21,17 +22,18 @@ class SignarViewset(viewsets.ModelViewSet):
         if request._auth and id:
             try:
                 sena = Sena.objects.get(id=id)
-                VideoSena.objects.create(
+                videoSena = VideoSena.objects.create(
                     sena = sena,
                     video = video
                 )
-                random_bool = random.choice([True, False])
-                sena_response = {
-                        'id': sena.id,
-                        'name': sena.nombre,
-                        'responseBool': random_bool
-                }
-                return Response(sena_response, 201)
+                sena = predict(videoSena)
+                if sena:
+                    sena_response = {
+                            'id': sena.id,
+                            'name': sena.nombre,
+                    }
+                    return Response(sena_response, 201)
+                return Response('No existe seña asociada', 203)
             except Exception as e:
                 return Response('Error {}'.format(e), 401)
         return Response('Falta enviar video o seña', 401)
@@ -171,4 +173,3 @@ class JuegoViewset(viewsets.ModelViewSet):
     def juego_signar(request):
         
         return Response(True, 201)
-
