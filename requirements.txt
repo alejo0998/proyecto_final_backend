@@ -25,3 +25,4 @@ whitenoise==6.2.0
 keras
 numpy
 mediapipe
+opencv-python
