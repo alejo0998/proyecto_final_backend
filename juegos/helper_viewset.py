@@ -127,9 +127,9 @@ def magia(video_reader, skip_frames_window, frame_counter):
 
     with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
       image, result = mediapipe_detection(resized_frame, holistic)
-      t = threading.Thread(target=extract_keypoints, args=(result, frame_counter,))
-      #extract_keypoints(result, frame_counter)
-      t.run()
+      #t = threading.Thread(target=extract_keypoints, args=(result, frame_counter,))
+      extract_keypoints(result, frame_counter)
+      #t.run()
       del t
       del image
       del resized_frame
