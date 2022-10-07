@@ -1,7 +1,7 @@
 from aprendizaje.models import Sena
 import cv2
 import numpy as np
-import solutions as mp
+import mediapipe as mp
 import keras as tf
 
 mp_holistic = mp.solutions.holistic # Holistic model
