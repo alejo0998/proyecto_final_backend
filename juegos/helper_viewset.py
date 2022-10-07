@@ -8,7 +8,7 @@ import tensorflow as tf
 import threading
 import time
 import gc
-
+import keras as ke
 mp_holistic = mp.solutions.holistic # Holistic model
 mp_drawing = mp.solutions.drawing_utils # Drawing utilities
 IMAGE_HEIGHT , IMAGE_WIDTH = 320, 180 
@@ -46,23 +46,15 @@ def mediapipe_detection(image, model):
 #    mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS) # Draw pose connections
 #    mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS) # Draw left hand connections
 #    mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS) # Draw right hand connections
-
-def extract_keypoints(results, indice):
-    pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else zero(33*4,"pose")
-    face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark]).flatten() if results.face_landmarks else zero(468*3,"cara")
-    lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark]).flatten() if results.left_hand_landmarks else zero(21*3,"mano izq")
-    rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten() if results.right_hand_landmarks else zero(21*3,"mano der")
-    global resultados
-    resultados.append((np.concatenate([pose, face, lh, rh]), indice))
-
-
+    
 
 def zero(i,t):
   print("no encontro " + str(t))
-  return np.zeros(i)
+  return np.zeros(i, np.uint16)
 
 
 def frames_extraction(video_memory, categoria):
+
     print("Estoy extrayendo los frames")
     '''
     This function will extract the required frames from a video after resizing and normalizing them.
@@ -75,7 +67,6 @@ def frames_extraction(video_memory, categoria):
     # Declare a list to store video frames.
     #frames_list = []
     results = []
-    video_keypoints = []
     video = Video()
     video.label = categoria
     
@@ -86,44 +77,29 @@ def frames_extraction(video_memory, categoria):
 
     # Get the total number of frames in the video.
     video_frames_count = int(video_reader.get(cv2.CAP_PROP_FRAME_COUNT))
-
-
     # Calculate the the interval after which frames will be added to the list.
     skip_frames_window = max(int(video_frames_count/SEQUENCE_LENGTH), 1)
     # Iterate through the Video Frames.
-  
     for frame_counter in range(SEQUENCE_LENGTH):
       #t = threading.Thread(target=magia_2, args=(video_reader, skip_frames_window, frame_counter,  ))
       #t.start()
-      magia(video_reader, skip_frames_window, frame_counter)
-      
-      #magia_2(video_reader, skip_frames_window, frame_counter)
-    
-  
-    # Release the VideoCapture object. 
-    video_reader.release()
-    #video.frames = frames_list
-    global resultados
-    resultados.sort(key=lambda x:x[1])
-    for resultado in resultados:
-      video_keypoints.append(resultado[0])
-    video.keypoints = video_keypoints
+      video_reader.set(cv2.CAP_PROP_POS_FRAMES, frame_counter * skip_frames_window)
+      success, frame = video_reader.read()
+
+      if not success:
+          return "Error"
+
+      resized_frame = cv2.resize(frame, (IMAGE_WIDTH, IMAGE_HEIGHT))
+
+      with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
+        _, results = mediapipe_detection(resized_frame, holistic)
+        pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark], np.float16).flatten() if results.pose_landmarks else zero(33*4,"pose")
+        face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark], np.float16).flatten() if results.face_landmarks else zero(468*3,"cara")
+        lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark], np.float16).flatten() if results.left_hand_landmarks else zero(21*3,"mano izq")
+        rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark], np.float16).flatten() if results.right_hand_landmarks else zero(21*3,"mano der")
+        video.keypoints.append((np.concatenate([pose, face, lh, rh], dtype=np.float16)))
+
     return video
-    #return frames_list, video_keypoints
-
-def magia(video_reader, skip_frames_window, frame_counter):
-    video_reader.set(cv2.CAP_PROP_POS_FRAMES, frame_counter * skip_frames_window)
-    success, frame = video_reader.read()
-
-    if not success:
-        return "Error"
-
-    resized_frame = cv2.resize(frame, (IMAGE_WIDTH, IMAGE_HEIGHT))
-
-    with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
-      image, result = mediapipe_detection(resized_frame, holistic)
-      extract_keypoints(result, frame_counter)
-
 
 
 def predict(video, categoria):
@@ -139,8 +115,15 @@ def predict(video, categoria):
     list_test.append(test_keypoints)
     lista = np.array(list_test)
     predictions = model.predict(lista)
+    del video
+    del test_keypoints
+    del list_test
+    del lista
     print("Ya predije")
     posibles_senas = Sena.objects.filter(categoria=categoria)[0:4]
     if len(posibles_senas) != len(predictions[0]):
       return None
-    return posibles_senas[int(np.argmax(predictions))]
+    posible = posibles_senas[int(np.argmax(predictions))]
+    del predictions
+    gc.collect()
+    return posible

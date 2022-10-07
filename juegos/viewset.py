@@ -1,3 +1,4 @@
+import gc
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
@@ -28,6 +29,8 @@ class SignarViewset(viewsets.ModelViewSet):
                             'id': prediccion.id,
                             'name': prediccion.nombre,
                     }
+                    del prediccion
+                    gc.collect()
                     return Response(sena_response, 201)
                 return Response('No existe seña asociada', 203)
             except Exception as e:
