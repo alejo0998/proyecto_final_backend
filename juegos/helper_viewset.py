@@ -132,7 +132,6 @@ def predict(videoSena):
     model_name = categoria
     file_name = './modelos/' + model_name + ".h5" 
     model = tf.keras.models.load_model(file_name)
-    import pdb; pdb.set_trace()
     video = frames_extraction(videoSena.video, videoSena.sena)
     test_keypoints = list(video.keypoints)
     list_test = list()
