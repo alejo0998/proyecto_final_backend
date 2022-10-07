@@ -30,7 +30,7 @@ class SignarViewset(viewsets.ModelViewSet):
                             'name': prediccion.nombre,
                     }
                     del prediccion
-                    gc.collect()
+                    gc.collect(generation=2)
                     return Response(sena_response, 201)
                 return Response('No existe seña asociada', 203)
             except Exception as e:

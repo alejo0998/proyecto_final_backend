@@ -1,14 +1,9 @@
-from re import I
-from unittest import result
 from aprendizaje.models import Sena
 import cv2
 import numpy as np
 import mediapipe as mp
 import tensorflow as tf
-import threading
-import time
 import gc
-import keras as ke
 mp_holistic = mp.solutions.holistic # Holistic model
 mp_drawing = mp.solutions.drawing_utils # Drawing utilities
 IMAGE_HEIGHT , IMAGE_WIDTH = 320, 180 
@@ -47,11 +42,9 @@ def mediapipe_detection(image, model):
 #    mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS) # Draw left hand connections
 #    mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS) # Draw right hand connections
     
-
 def zero(i,t):
   print("no encontro " + str(t))
-  return np.zeros(i, np.uint16)
-
+  return np.zeros(i, np.uint0)
 
 def frames_extraction(video_memory, categoria):
 
@@ -73,7 +66,7 @@ def frames_extraction(video_memory, categoria):
     # Read the Video File using the VideoCapture object.
     video_reader = cv2.VideoCapture(video_memory.file.name)
     del video_memory
-    gc.collect()
+    gc.collect(generation=2)
 
     # Get the total number of frames in the video.
     video_frames_count = int(video_reader.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -83,6 +76,10 @@ def frames_extraction(video_memory, categoria):
     for frame_counter in range(SEQUENCE_LENGTH):
       #t = threading.Thread(target=magia_2, args=(video_reader, skip_frames_window, frame_counter,  ))
       #t.start()
+      pose = None
+      face = None
+      lh = None
+      rh = None
       video_reader.set(cv2.CAP_PROP_POS_FRAMES, frame_counter * skip_frames_window)
       success, frame = video_reader.read()
 
@@ -93,14 +90,15 @@ def frames_extraction(video_memory, categoria):
 
       with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
         _, results = mediapipe_detection(resized_frame, holistic)
-        pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark], np.float16).flatten() if results.pose_landmarks else zero(33*4,"pose")
-        face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark], np.float16).flatten() if results.face_landmarks else zero(468*3,"cara")
-        lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark], np.float16).flatten() if results.left_hand_landmarks else zero(21*3,"mano izq")
-        rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark], np.float16).flatten() if results.right_hand_landmarks else zero(21*3,"mano der")
-        video.keypoints.append((np.concatenate([pose, face, lh, rh], dtype=np.float16)))
-
+        pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark], np.uint0).flatten() if results.pose_landmarks else zero(33*4,"pose")
+        face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark], np.uint0).flatten() if results.face_landmarks else zero(468*3,"cara")
+        lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark], np.int8).flatten() if results.left_hand_landmarks else zero(21*3,"mano izq")
+        rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark], np.int8).flatten() if results.right_hand_landmarks else zero(21*3,"mano der")
+        keypoint = np.concatenate([pose, face, lh, rh], dtype=np.int8)
+        video.keypoints.append(keypoint)
+        del keypoint
+        gc.collect(generation=2)
     return video
-
 
 def predict(video, categoria):
     categoria = categoria
@@ -125,5 +123,5 @@ def predict(video, categoria):
       return None
     posible = posibles_senas[int(np.argmax(predictions))]
     del predictions
-    gc.collect()
+    gc.collect(generation=1)
     return posible
