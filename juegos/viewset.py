@@ -6,7 +6,6 @@ from aprendizaje.models import Sena, VideoSena
 from aprendizaje.viewset import obtener_categoria
 from rest_framework.response import Response
 import random
-from juegos.helper_viewset import predict
 from juegos.serializers import JuegoSerializer, SignarSerializer
 
 class SignarViewset(viewsets.ModelViewSet):
