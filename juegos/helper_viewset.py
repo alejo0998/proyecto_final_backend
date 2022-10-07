@@ -54,11 +54,6 @@ def extract_keypoints(results, indice):
     rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten() if results.right_hand_landmarks else zero(21*3,"mano der")
     global resultados
     resultados.append((np.concatenate([pose, face, lh, rh]), indice))
-    del pose
-    del face
-    del lh
-    del rh
-    gc.collect()
 
 
 def zero(i,t):
@@ -112,7 +107,6 @@ def frames_extraction(video_memory, categoria):
     for resultado in resultados:
       video_keypoints.append(resultado[0])
     video.keypoints = video_keypoints
-    del resultados
     return video
     #return frames_list, video_keypoints
 
@@ -127,14 +121,10 @@ def magia(video_reader, skip_frames_window, frame_counter):
 
     with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
       image, result = mediapipe_detection(resized_frame, holistic)
-      #t = threading.Thread(target=extract_keypoints, args=(result, frame_counter,))
-      extract_keypoints(result, frame_counter)
-      #t.run()
-      del image
-      del resized_frame
-      del result
-      del holistic
-    gc.collect()
+      t = threading.Thread(target=extract_keypoints, args=(result, frame_counter,))
+      t.start()
+      #extract_keypoints(result, frame_counter)
+    t.join()
 
 
 
@@ -147,15 +137,10 @@ def predict(video, categoria):
     video = frames_extraction(video, categoria)
     print("Extraje los frames")
     test_keypoints = list(video.keypoints)
-    del video
-    gc.collect()
     list_test = list()
     list_test.append(test_keypoints)
     lista = np.array(list_test)
     predictions = model.predict(lista)
-    del list_test
-    del lista
-    gc.collect()
     print("Ya predije")
     posibles_senas = Sena.objects.filter(categoria=categoria)[0:4]
     if len(posibles_senas) != len(predictions[0]):
