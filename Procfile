@@ -1,1 +1,1 @@
-web: gunicorn lsa_backend.wsgi --log-file --log-level debug --timeout 45 --keep-alive 5
+web: gunicorn lsa_backend.wsgi --log-level debug --timeout 45 --keep-alive 5 --log-file -
