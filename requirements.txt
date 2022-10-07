@@ -26,5 +26,5 @@ opencv-python-headless
 opencv-contrib-python-headless
 opencv-python
 solutions
-keras
+tensorflow==2.0
 numpy

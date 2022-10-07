@@ -2,7 +2,7 @@ from aprendizaje.models import Sena
 import cv2
 import numpy as np
 import solutions as mp
-import keras as tf
+import tensorflow as tf
 
 mp_holistic = mp.solutions.holistic # Holistic model
 mp_drawing = mp.solutions.drawing_utils # Drawing utilities
@@ -131,7 +131,7 @@ def predict(videoSena):
     categoria = videoSena.sena.categoria
     model_name = categoria
     file_name = './modelos/' + model_name + ".h5" 
-    model = tf.models.load_model(file_name)
+    model = tf.keras.models.load_model(file_name)
     import pdb; pdb.set_trace()
     video = frames_extraction(videoSena.video, videoSena.sena)
     test_keypoints = list(video.keypoints)
