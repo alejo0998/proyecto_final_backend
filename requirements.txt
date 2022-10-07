@@ -24,5 +24,6 @@ wadllib==1.3.3
 whitenoise==6.2.0
 opencv-python
 opencv-python-headless
+mediapipe
 keras
 numpy
