@@ -25,6 +25,6 @@ whitenoise==6.2.0
 opencv-python-headless
 opencv-contrib-python-headless
 opencv-python
-mediapipe
+solutions
 keras
 numpy
