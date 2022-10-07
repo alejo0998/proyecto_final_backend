@@ -25,4 +25,5 @@ whitenoise==6.2.0
 opencv-python-headless
 mediapipe==0.8.11
 tensorflow-cpu==1.15.0
+h5py==2.10.0
 numpy

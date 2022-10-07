@@ -132,7 +132,7 @@ def predict(videoSena):
     categoria = videoSena.sena.categoria
     model_name = categoria
     file_name = './modelos/' + model_name + ".h5"
-    model = tf.keras.models.load_model(file_name.encode('utf-8'))
+    model = tf.keras.models.load_model(file_name, compile = False)
     print("Cargue el modelo")
     video = frames_extraction(videoSena.video, videoSena.sena)
     print("Extraje los frames")
