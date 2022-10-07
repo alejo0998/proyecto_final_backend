@@ -55,6 +55,7 @@ def zero(i,t):
 
 
 def frames_extraction(video_path, sena):
+    print("Estoy extrayendo los frames")
     '''
     This function will extract the required frames from a video after resizing and normalizing them.
     Args:
@@ -130,13 +131,16 @@ def frames_extraction(video_path, sena):
 def predict(videoSena):
     categoria = videoSena.sena.categoria
     model_name = categoria
-    file_name = './modelos/' + str(model_name) + ".h5"
+    file_name = './modelos/' + model_name + ".h5"
     model = tf.keras.models.load_model(file_name)
+    print("Cargue el modelo")
     video = frames_extraction(videoSena.video, videoSena.sena)
+    print("Extraje los frames")
     test_keypoints = list(video.keypoints)
     list_test = list()
     list_test.append(test_keypoints)
     predictions = model.predict((np.array(list_test)))
+    print("Ya predije")
     posibles_senas = Sena.objects.filter(categoria=categoria)[0:4]
     if len(posibles_senas) != len(predictions[0]):
       videoSena.video.delete()
