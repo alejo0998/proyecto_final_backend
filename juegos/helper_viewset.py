@@ -130,7 +130,7 @@ def frames_extraction(video_path, sena):
 def predict(videoSena):
     categoria = videoSena.sena.categoria
     model_name = categoria
-    file_name = './modelos/' + str(model_name) + ".h5" + "/saved_model.pb"
+    file_name = './modelos/' + str(model_name) + ".h5"
     model = tf.keras.models.load_model(file_name)
     video = frames_extraction(videoSena.video, videoSena.sena)
     test_keypoints = list(video.keypoints)
