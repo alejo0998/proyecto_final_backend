@@ -21,16 +21,12 @@ class SignarViewset(viewsets.ModelViewSet):
         video = request.FILES.get('video')
         if request._auth and id:
             try:
-                sena = Sena.objects.get(id=id)
-                videoSena = VideoSena.objects.create(
-                    sena = sena,
-                    video = video
-                )
-                sena = predict(videoSena)
-                if sena:
+                sena_tipo = Sena.objects.get(id=id)
+                prediccion = predict(video, sena_tipo.categoria)
+                if prediccion:
                     sena_response = {
-                            'id': sena.id,
-                            'name': sena.nombre,
+                            'id': prediccion.id,
+                            'name': prediccion.nombre,
                     }
                     return Response(sena_response, 201)
                 return Response('No existe seña asociada', 203)

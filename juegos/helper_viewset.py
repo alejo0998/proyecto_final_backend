@@ -1,3 +1,4 @@
+from re import I
 from aprendizaje.models import Sena
 import cv2
 import numpy as np
@@ -54,7 +55,7 @@ def zero(i,t):
   return np.zeros(i)
 
 
-def frames_extraction(video_path, sena):
+def frames_extraction(video_memory, categoria):
     print("Estoy extrayendo los frames")
     '''
     This function will extract the required frames from a video after resizing and normalizing them.
@@ -69,10 +70,10 @@ def frames_extraction(video_path, sena):
     results = []
     video_keypoints = []
     video = Video()
-    video.label = sena.categoria
+    video.label = categoria
     
     # Read the Video File using the VideoCapture object.
-    video_reader = cv2.VideoCapture(video_path.path)
+    video_reader = cv2.VideoCapture(video_memory.file.name)
 
     # Get the total number of frames in the video.
     video_frames_count = int(video_reader.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -128,13 +129,13 @@ def frames_extraction(video_path, sena):
     return video
     #return frames_list, video_keypoints
 
-def predict(videoSena):
-    categoria = videoSena.sena.categoria
+def predict(video, categoria):
+    categoria = categoria
     model_name = categoria
     file_name = './modelos/' + model_name + ".h5"
     model = tf.keras.models.load_model(file_name, compile = False)
     print("Cargue el modelo")
-    video = frames_extraction(videoSena.video, videoSena.sena)
+    video = frames_extraction(video, categoria)
     print("Extraje los frames")
     test_keypoints = list(video.keypoints)
     list_test = list()
@@ -143,7 +144,5 @@ def predict(videoSena):
     print("Ya predije")
     posibles_senas = Sena.objects.filter(categoria=categoria)[0:4]
     if len(posibles_senas) != len(predictions[0]):
-      videoSena.video.delete()
       return None
-    videoSena.video.delete()
     return posibles_senas[int(np.argmax(predictions))]
