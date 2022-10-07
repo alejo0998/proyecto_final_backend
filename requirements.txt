@@ -28,4 +28,3 @@ opencv-python
 mediapipe
 keras
 numpy
-python==3.9.*
