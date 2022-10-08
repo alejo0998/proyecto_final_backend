@@ -5,7 +5,6 @@ import mediapipe as mp
 import tensorflow as tf
 import gc
 mp_holistic = mp.solutions.holistic # Holistic model
-mp_drawing = mp.solutions.drawing_utils # Drawing utilities
 IMAGE_HEIGHT , IMAGE_WIDTH = 320, 180 
 SEQUENCE_LENGTH = 30        #ACÁ DECÍA 20, LE SUBÍ A 150 PORQUE LA MAYORÍA LOS FILMAMOS A 30 FPS Y DURAN COMO MUCHO 5 SEG
 DATASET_DIR = '../media' 
@@ -90,11 +89,11 @@ def frames_extraction(video_memory, categoria):
 
       with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
         _, results = mediapipe_detection(resized_frame, holistic)
-        pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark], np.uint0).flatten() if results.pose_landmarks else zero(33*4,"pose")
-        face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark], np.uint0).flatten() if results.face_landmarks else zero(468*3,"cara")
-        lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark], np.int8).flatten() if results.left_hand_landmarks else zero(21*3,"mano izq")
-        rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark], np.int8).flatten() if results.right_hand_landmarks else zero(21*3,"mano der")
-        keypoint = np.concatenate([pose, face, lh, rh], dtype=np.int8)
+        pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark], np.float16).flatten() if results.pose_landmarks else zero(33*4,"pose")
+        face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark], np.float16).flatten() if results.face_landmarks else zero(468*3,"cara")
+        lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark], np.float16).flatten() if results.left_hand_landmarks else zero(21*3,"mano izq")
+        rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark], np.float16).flatten() if results.right_hand_landmarks else zero(21*3,"mano der")
+        keypoint = np.concatenate([pose, face, lh, rh], dtype=np.float16)
         video.keypoints.append(keypoint)
         del keypoint
         gc.collect(generation=2)
