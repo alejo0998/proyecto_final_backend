@@ -40,5 +40,9 @@ class VideoSena(models.Model):
     sena = models.ForeignKey(Sena, on_delete=models.CASCADE)
     video = models.FileField(upload_to="media", null=True)
 
-admin.site.register(Sena)
+class SenaAdmin(admin.ModelAdmin):
+    list_filter=['categoria', 'permite_signa']
+    search_fields = ('nombre',
+    )
+admin.site.register(Sena, SenaAdmin )
 admin.site.register(UsuarioSena)
