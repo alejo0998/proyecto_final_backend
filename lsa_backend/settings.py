@@ -83,7 +83,7 @@ WSGI_APPLICATION = 'lsa_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-if True:
+if False:
     DATABASES = {
         'default': {
         'ENGINE': 'django.db.backends.sqlite3',
