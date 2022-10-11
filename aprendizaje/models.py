@@ -8,6 +8,7 @@ class Sena(models.Model):
     nombre = models.CharField(max_length=50)
     url = models.CharField(max_length=254)
     permite_signa = models.BooleanField(default=False)
+    posicion_array_ia = models.IntegerField(null=True)
     class Categoria(models.TextChoices):
         ABECEDARIO = '1', _('Abecedario')
         COLORES = '2', _('Colores')
