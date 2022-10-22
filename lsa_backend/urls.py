@@ -22,7 +22,7 @@ from rest_framework.authtoken import views
 from login.views import *
 from rest_framework.permissions import IsAuthenticated
 from aprendizaje.viewset import SenaViewset, UsuarioSenaViewset
-from juegos.viewset import JuegoViewset, SignarViewset
+from juegos.viewset import CategoriasDisponibles, JuegoViewset
 
 
 # Serializers define the API representation.
@@ -57,9 +57,11 @@ urlpatterns = [
     path('login/', login),
     path('sign/', UsuarioSenaViewset.post_sena_usuario),
     path('sign/category', SenaViewset.get_senas_categoria),
+    path('sign/id', SenaViewset.get_id_senas_categoria),
     path('usuario/get_senas_usuario', UsuarioSenaViewset.get_senas_usuario),
     path('practice/games/', JuegoViewset.get_juegos),
     path('practice/games_v2/', JuegoViewset.get_juegos_v2),
-    path('practice/send_video/', SignarViewset.recibir_video),
+    path('practice/categories/', CategoriasDisponibles.get_categorias_disponibles),
+
 
 ]

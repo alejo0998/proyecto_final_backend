@@ -53,6 +53,18 @@ class SenaViewset(viewsets.ModelViewSet):
             return Response(serializer.data)
         return Response('No se envio la categoria')
 
+    @api_view(['GET'])
+    def get_id_senas_categoria(request):
+        json_data = json.loads(request.body)
+        id = json_data.get('categoria')
+        qs = Sena.objects.filter(categoria=id)
+        for q in qs:
+            UsuarioSena.objects.create(
+                usuario = request.user,
+                sena_realizada=q
+            )
+        return Response(qs.values_list('id'), 200)
+
 class UsuarioSenaViewset(viewsets.ModelViewSet):
     queryset = UsuarioSena.objects.all()
     serializer_class = UsuarioSenaSerializer
@@ -66,6 +78,7 @@ class UsuarioSenaViewset(viewsets.ModelViewSet):
             return Response(serializer.data, 200)
         return Response('No se envio el token', 401)
 
+
     @api_view(['POST'])
     def post_sena_usuario(request): #Actualiza una sena que vio un usuario
         json_data = json.loads(request.body)
@@ -75,11 +88,14 @@ class UsuarioSenaViewset(viewsets.ModelViewSet):
         if request._auth and id:
             try:
                 sena_realizada = Sena.objects.get(id=id)
-                UsuarioSena.objects.create(
+                
+                sena, bool = UsuarioSena.objects.get_or_create(
                     usuario = request._auth.user,
                     sena_realizada = sena_realizada
                 )
-                return Response('Seña usuario creada', 201)
+                if bool:
+                    return Response('Seña usuario creada', 201)
+                return Response('Seña usuario anteriormente creada', 201)
             except Exception:
                 return Response('No existe el usuario o la seña',401)
         else:

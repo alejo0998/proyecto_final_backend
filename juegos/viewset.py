@@ -3,34 +3,63 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from django.db import transaction
-from aprendizaje.models import Sena, VideoSena
+from aprendizaje.models import Sena, UsuarioSena, VideoSena
 from aprendizaje.viewset import obtener_categoria
 from rest_framework.response import Response
 import random
 from juegos.serializers import JuegoSerializer, SignarSerializer
 
-class SignarViewset(viewsets.ModelViewSet):
+def senas_vistas(lista_senas, categoria):
+    senas_categoria = Sena.objects.filter(categoria=categoria)
+    for sena in senas_categoria:
+        if not(sena in lista_senas):
+            return None
+    return categoria
+
+class CategoriasDisponibles(viewsets.ModelViewSet):
     queryset = VideoSena.objects.all()
     serializer_class = SignarSerializer
     permission_classes = [IsAuthenticated]
 
     @transaction.atomic
-    @api_view(['POST'])
-    def recibir_video(request):
-        id = request.POST.get('idSign')
-        video = request.FILES.get('video')
-        if request._auth and id:
-            try:
-                sena_tipo = Sena.objects.get(id=id)
-                sena_response = {
-                        'id': sena_tipo.id,
-                        'name': sena_tipo.nombre,
-                    }
-                return Response(sena_response, 201)
-            except Exception as e:
-                return Response('Error {}'.format(e), 401)
-        return Response('Falta enviar video o seña', 401)
+    @api_view(['GET'])
+    def get_categorias_disponibles(request):
+        CATEGORIAS= [
+        ('1', 'Abecedario'),
+        ('2', 'Colores'),
+        ('3', 'Comidas'),
+        ('4', 'Geografia'),
+        ('5', 'Modales'),
+        ('6', 'Numeros'),
+        ('7', 'Personas'),
+        ('8', 'Preguntas'),
+        ('9', 'Verbos'),
+        ]
+        response = list()
+        for cat in CATEGORIAS:
+            lista_id = UsuarioSena.objects.filter(usuario=request.user, sena_realizada__categoria=cat[0]).values_list('sena_realizada')
+            lista_sena = []
+            for id in lista_id:
+                lista_sena.append(Sena.objects.get(id=id[0]))
+            categoria = senas_vistas(lista_sena, cat[0])
+            if categoria:
+                respuesta = {
+                    'id': cat[0],
+                    'name': cat[1],
+                    'enabled': True
+                }
+                response.append(respuesta)
+            else:
+                respuesta = {
+                    'id': cat[0],
+                    'name': cat[1],
+                    'enabled': False
+                }
+                response.append(respuesta)
 
+        return Response(response, 200)
+
+         
 
 class JuegoViewset(viewsets.ModelViewSet):
     queryset = Sena.objects.all()
