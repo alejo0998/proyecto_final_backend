@@ -22,6 +22,8 @@ def normalize(s):
 
 
 def obtener_categoria(categoria):
+    if categoria is None:
+        return categoria
     CATEGORIAS= [
         ('1', 'Abecedario'),
         ('2', 'Colores'),

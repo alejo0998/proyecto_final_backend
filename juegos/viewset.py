@@ -132,14 +132,37 @@ class JuegoViewset(viewsets.ModelViewSet):
         categoria = request.GET.get('categoryName')
         posibles_juegos = ['escribi', 'adivina']
         response = []
-        if request._auth and categoria:
+        if request._auth:
             int_categoria = obtener_categoria(categoria)
             senas = []
-            posibles_senas = list(Sena.objects.filter(categoria=int_categoria))
-            for int in range(10):
+            posibles_senas_signa = list()
+            posibles_senas = list()
+            if int_categoria != None:
+                senas_categoria = list(Sena.objects.filter(categoria=int_categoria))
+                for posible in senas_categoria:
+                    if posible.permite_signa:
+                        posibles_senas_signa.append(posible)
+                    else:
+                        posibles_senas.append(posible)
+            else:
+                lista_id = UsuarioSena.objects.filter(usuario=request.user).values_list('sena_realizada')
+                for id in lista_id:
+                    sena = Sena.objects.get(id=id[0])
+                    if not(sena in posibles_senas):
+                        if sena.permite_signa:
+                            posibles_senas_signa.append(sena)
+                        else:
+                            posibles_senas.append(sena)
+            cantidad_senas = 2 if len(posibles_senas_signa)>=2 else len(posibles_senas_signa)
+            for i in range(10-cantidad_senas):
                 sena = random.choice(posibles_senas)
                 posibles_senas.remove(sena)
                 senas.append(sena)
+            for i in range(cantidad_senas):
+                sena = random.choice(posibles_senas_signa)
+                posibles_senas_signa.remove(sena)
+                senas.append(sena)
+            random.shuffle(senas)
             for sena in senas:
                 sena_response = {
                                 'id': sena.id,
@@ -164,7 +187,7 @@ class JuegoViewset(viewsets.ModelViewSet):
                 else:
                     tipo_juego = random.choice(posibles_juegos)
                     if tipo_juego == 'adivina':
-                        senas_opciones = list(Sena.objects.filter(categoria=int_categoria))
+                        senas_opciones = list(Sena.objects.filter(categoria=sena.categoria))
                         senas_options = []
                         for int in range(4):
                             sena_random = random.choice(senas_opciones)
