@@ -16,6 +16,31 @@ def senas_vistas(lista_senas, categoria):
             return None
     return categoria
 
+
+def obtener_categorias_realizadas(usuario):
+    CATEGORIAS= [
+    ('1', 'Abecedario'),
+    ('2', 'Colores'),
+    ('3', 'Comidas'),
+    ('4', 'Geografia'),
+    ('5', 'Modales'),
+    ('6', 'Numeros'),
+    ('7', 'Personas'),
+    ('8', 'Preguntas'),
+    ('9', 'Verbos'),
+    ]
+    lista = list()
+    for cat in CATEGORIAS:
+        lista_id = UsuarioSena.objects.filter(usuario=usuario, sena_realizada__categoria=cat[0]).values_list('sena_realizada')
+        lista_sena = []
+        for id in lista_id:
+            lista_sena.append(Sena.objects.get(id=id[0]))
+        categoria = senas_vistas(lista_sena, cat[0])
+        if categoria:
+            lista.append(cat[0])                
+
+    return lista
+
 class CategoriasDisponibles(viewsets.ModelViewSet):
     queryset = VideoSena.objects.all()
     serializer_class = SignarSerializer
@@ -126,6 +151,9 @@ class JuegoViewset(viewsets.ModelViewSet):
             return Response(response, 201)
         return Response('No envio token de inicio de sesion o la categoria', 400)
 
+
+
+
     @transaction.atomic
     @api_view(['GET'])
     def get_juegos_v2(request):
@@ -146,13 +174,17 @@ class JuegoViewset(viewsets.ModelViewSet):
                         posibles_senas.append(posible)
             else:
                 lista_id = UsuarioSena.objects.filter(usuario=request.user).values_list('sena_realizada')
+                categorias = obtener_categorias_realizadas(request.user)
                 for id in lista_id:
                     sena = Sena.objects.get(id=id[0])
-                    if not(sena in posibles_senas):
-                        if sena.permite_signa:
-                            posibles_senas_signa.append(sena)
-                        else:
-                            posibles_senas.append(sena)
+                    if sena.categoria in categorias:
+                        if not(sena in posibles_senas):
+                            if sena.permite_signa:
+                                posibles_senas_signa.append(sena)
+                            else:
+                                posibles_senas.append(sena)
+            if len(posibles_senas)==0:
+                return Response('No hay seña para practicar!', 400)
             cantidad_senas = 2 if len(posibles_senas_signa)>=2 else len(posibles_senas_signa)
             for i in range(10-cantidad_senas):
                 sena = random.choice(posibles_senas)
