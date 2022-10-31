@@ -219,7 +219,12 @@ class JuegoViewset(viewsets.ModelViewSet):
                 else:
                     tipo_juego = random.choice(posibles_juegos)
                     if tipo_juego == 'adivina':
-                        senas_opciones = list(Sena.objects.filter(categoria=sena.categoria))
+                        senas_opciones = None
+                        if categoria != None:
+                            senas_opciones = list(Sena.objects.filter(categoria=sena.categoria))
+                        else:
+                            categorias_vistas = obtener_categorias_realizadas(request.user)
+                            senas_opciones = list(Sena.objects.filter(categoria__in=categorias_vistas))
                         senas_options = []
                         for int in range(4):
                             sena_random = random.choice(senas_opciones)
