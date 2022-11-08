@@ -50,7 +50,7 @@ class SenaViewset(viewsets.ModelViewSet):
         if request.GET.get('category'):
             categoria = obtener_categoria(request.GET.get('category'))
             queryset = Sena.objects.filter(categoria=categoria).order_by('nombre')
-            if categoria == 6:
+            if categoria == '6':
                 queryset = Sena.objects.filter(categoria=categoria).order_by('orden')
 
             serializer = SenaSerializer(queryset, many=True, context={'request': request,
